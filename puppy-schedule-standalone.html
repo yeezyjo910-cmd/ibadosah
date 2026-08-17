@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Iba's Puppy Schedule</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Iba's Schedule" />
+<meta name="theme-color" content="#FF6FA5" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --pink: #FF6FA5;
+    --pink-deep: #FF4F8B;
+    --plum: #5B2C4E;
+    --plum-dark: #3C2333;
+    --muted: #9A7286;
+    --muted2: #B48A9E;
+    --line: #F1DCE6;
+    --card-line: #F8E4EC;
+    --bg-soft: #FFF9FB;
+    --yellow: #FFC857;
+    --green: #5FC96F;
+    --red: #FF6B6B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #FFF3F7 0%, #FDEDF3 100%);
+    font-family: 'Nunito', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px 12px 40px;
+  }
+  #app { width: 100%; max-width: 420px; }
+  h1, h2, .display { font-family: 'Baloo 2', system-ui, sans-serif; }
+  button { font-family: inherit; cursor: pointer; }
+  input { font-family: inherit; }
+
+  /* ---- login ---- */
+  .login-wrap { width: 100%; max-width: 380px; margin: 40px auto 0; }
+  .login-paws { text-align: center; font-size: 20px; opacity: .6; margin-bottom: -4px; }
+  .login-card {
+    background: #fff; border-radius: 28px; padding: 32px 26px 26px;
+    box-shadow: 0 10px 30px rgba(216,110,150,0.18);
+    display: flex; flex-direction: column; align-items: center;
+    border: 1px solid var(--card-line);
+  }
+  .tag-badge {
+    width: 52px; height: 52px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--pink), #FF9AC0);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px; font-size: 26px;
+    box-shadow: 0 6px 14px rgba(255,111,165,0.4);
+  }
+  .tag-badge-sm {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--pink), #FF9AC0);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 17px;
+  }
+  .login-title { font-weight: 800; font-size: 26px; color: var(--plum); margin: 0; }
+  .login-sub { color: var(--muted2); font-size: 13px; margin: 4px 0 20px; }
+  .field-label {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700;
+    color: #8A5C72; margin: 12px 0 6px;
+  }
+  .field-input {
+    width: 100%; padding: 11px 14px; border-radius: 14px; border: 1.5px solid var(--line);
+    font-size: 14px; outline: none; background: var(--bg-soft);
+  }
+  .error-text { color: #E0546F; font-size: 12px; margin-top: 8px; font-weight: 700; }
+  .primary-btn {
+    width: 100%; margin-top: 20px; padding: 13px 0; border-radius: 16px; border: none;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep)); color: #fff;
+    font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 8px 18px rgba(255,79,139,0.35);
+  }
+  .hint { font-size: 11px; color: var(--muted2); text-align: center; margin-top: 18px; line-height: 1.6; }
+
+  /* ---- app shell ---- */
+  header.app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-title { font-weight: 700; font-size: 18px; color: var(--plum); }
+  .role-tag { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted2); font-weight: 700; margin-top: 2px; }
+  .logout-btn {
+    display: flex; align-items: center; gap: 5px; background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; padding: 7px 11px; font-size: 12px; font-weight: 700; color: #8A5C72;
+  }
+  .stats-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .stat-card {
+    flex: 1; background: #fff; border-radius: 18px; padding: 14px 10px;
+    display: flex; flex-direction: column; align-items: center; border: 1.5px solid;
+    box-shadow: 0 4px 10px rgba(216,110,150,0.08);
+  }
+  .stat-num { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 24px; color: var(--plum-dark); margin-top: 4px; }
+  .stat-label { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; text-align: center; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; padding: 8px 2px; border-radius: 14px; border: 1.5px solid var(--line);
+    background: #fff; color: var(--muted); font-weight: 700; font-size: 10.5px;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--pink), #FF8FB5); color: #fff; border-color: transparent;
+    box-shadow: 0 6px 14px rgba(255,111,165,0.35);
+  }
+  .card {
+    background: #fff; border-radius: 20px; padding: 18px; border: 1px solid var(--card-line);
+    box-shadow: 0 4px 14px rgba(216,110,150,0.08);
+  }
+  .home-text { font-size: 13.5px; color: #6B4A5A; line-height: 1.6; margin-top: 12px; }
+  .legend-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #8A5C72; font-weight: 700; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 4px; display: inline-block; }
+
+  .month-nav { display: flex; align-items: center; justify-content: space-between; margin: 14px 0 10px; }
+  .month-arrow {
+    width: 30px; height: 30px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg-soft); display: flex; align-items: center; justify-content: center; color: #8A5C72;
+  }
+  .month-label { font-weight: 700; font-size: 16px; color: var(--plum); }
+  .week-row { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 6px; }
+  .weekday-label { text-align: center; font-size: 10px; font-weight: 800; color: var(--muted2); }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .day-cell {
+    position: relative; aspect-ratio: 1; border-radius: 10px; border: 1px solid;
+    display: flex; align-items: center; justify-content: center; font-size: 12.5px; background: #fff;
+  }
+  .day-paw { position: absolute; bottom: 1px; right: 2px; font-size: 9px; }
+
+  .section-head-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .section-head { font-weight: 700; font-size: 16px; color: var(--plum); }
+  .add-btn {
+    display: flex; align-items: center; gap: 4px; background: #FFF0F5; color: #E0546F;
+    border: none; border-radius: 10px; padding: 6px 10px; font-size: 12px; font-weight: 800;
+  }
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .list-row { display: flex; align-items: center; gap: 10px; background: var(--bg-soft); border: 1px solid var(--card-line); border-radius: 14px; padding: 10px 12px; }
+  .reward-icon { width: 26px; height: 26px; border-radius: 8px; background: #FFF3DE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+  .list-label { flex: 1; font-size: 13.5px; color: #4A2E3C; font-weight: 700; }
+  .cost-chip { display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; color: #B4791F; background: #FFF3DE; padding: 4px 8px; border-radius: 8px; }
+  .redeem-btn { background: linear-gradient(135deg, var(--pink), var(--pink-deep)); color: #fff; border: none; border-radius: 10px; padding: 7px 10px; font-size: 11.5px; font-weight: 800; }
+  .icon-btn { background: none; border: none; padding: 4px; font-size: 13px; color: #8A5C72; }
+  .empty-text { font-size: 13px; color: var(--muted2); text-align: center; padding: 12px 0; }
+  .viewer-note { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); background: var(--bg-soft); border: 1px dashed var(--line); border-radius: 12px; padding: 9px 12px; margin-top: 14px; }
+  .redeemed-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #8A5C72; padding: 6px 4px; border-bottom: 1px dashed var(--line); }
+  .redeemed-date { font-size: 10.5px; color: var(--muted2); margin-left: auto; }
+
+  .sticker-count { font-size: 11.5px; font-weight: 800; color: #B4791F; background: #FFF3DE; padding: 5px 10px; border-radius: 10px; }
+  .sticker-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .sticker-slot {
+    aspect-ratio: 1; border-radius: 12px; border: 1.5px solid; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; box-shadow: 0 2px 6px rgba(216,110,150,0.06);
+  }
+
+  .note-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .note-input { flex: 1; padding: 10px 14px; border-radius: 14px; border: 1.5px solid var(--line); font-size: 13.5px; outline: none; background: var(--bg-soft); }
+  .note-send-btn { width: 40px; height: 40px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--pink), var(--pink-deep)); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+  .note-row { background: var(--bg-soft); border: 1px solid var(--card-line); border-radius: 14px; padding: 10px 12px; }
+  .note-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .note-author { font-size: 12px; font-weight: 800; color: #E0546F; flex: 1; }
+  .note-date { font-size: 10.5px; color: var(--muted2); font-weight: 700; }
+  .note-text { font-size: 13.5px; color: #4A2E3C; line-height: 1.5; }
+
+  .footer { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: var(--muted2); margin-top: 18px; font-weight: 700; }
+  .saving-badge { font-size: 10px; color: var(--muted2); margin-left: 4px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--plum-dark);
+    color: #fff; padding: 10px 18px; border-radius: 14px; font-size: 13px; font-weight: 700;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25); z-index: 60;
+  }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(60,35,51,0.35); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal-card { background: #fff; border-radius: 22px; padding: 20px 20px 22px; width: 100%; max-width: 340px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); }
+  .modal-head-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+
+  ::placeholder { color: #C9A3B4; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "puppy-schedule-data-v1";
+  var DAY_COLORS = ["none", "red", "yellow", "green"];
+  var COLOR_MAP = {
+    none:   { bg: "#FFFFFF", border: "#F1DCE6", label: null },
+    red:    { bg: "#FF8A8A", border: "#FF6B6B", label: "Rough day" },
+    yellow: { bg: "#FFD27A", border: "#FFC857", label: "Okay day" },
+    green:  { bg: "#8FE39B", border: "#5FC96F", label: "Good girl +1" },
+  };
+  var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var WEEKDAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"];
+  var STICKER_ICONS = ["🦴","❤️","⭐","🐾","🍪","✨","☀️","🌸","🍦"];
+  var STICKER_COLORS = ["#FFD27A","#FF9AC0","#8FE39B","#9AD4FF","#FFB380","#C9A6FF","#FFE47A","#FF8FA3","#8FE0D6"];
+
+  function defaultData() {
+    return {
+      puppyName: "Iba",
+      adminPassword: "goodgirl",
+      viewerUsername: "ibacutie",
+      viewerPassword: "lolmeow",
+      days: {},
+      stickerSlots: 30,
+      notes: [],
+      rewards: [
+        { id: "r1", name: "New chew toy", cost: 3 },
+        { id: "r2", name: "Extra treat", cost: 1 },
+        { id: "r3", name: "Trip to the park", cost: 5 },
+        { id: "r4", name: "Puppuccino", cost: 2 }
+      ],
+      redeemed: []
+    };
+  }
+
+  function loadData() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        var merged = Object.assign({}, defaultData(), parsed);
+        merged.notes = parsed.notes || [];
+        return merged;
+      }
+    } catch (e) {}
+    var d = defaultData();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    return d;
+  }
+
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    ui.saving = true;
+    render();
+    setTimeout(function () { ui.saving = false; render(); }, 500);
+  }
+
+  function dateKey(y, m, d) {
+    return y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+  }
+  function mondayIndex(jsDay) { return (jsDay + 6) % 7; }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  var data = loadData();
+  var session = { role: null, displayName: "" };
+  var ui = {
+    tab: "home",
+    cursor: (function () { var n = new Date(); return { y: n.getFullYear(), m: n.getMonth() }; })(),
+    toast: "",
+    rewardModal: null,
+    saving: false
+  };
+
+  function greenDays() {
+    return Object.keys(data.days).filter(function (k) { return data.days[k] === "green"; }).length;
+  }
+  function redeemedPoints() {
+    return data.redeemed.reduce(function (s, r) { return s + r.cost; }, 0);
+  }
+  function pointsAvailable() {
+    return Math.max(0, greenDays() - redeemedPoints());
+  }
+
+  function showToast(msg) {
+    ui.toast = msg;
+    render();
+    setTimeout(function () { ui.toast = ""; render(); }, 2200);
+  }
+
+  // ---------- actions ----------
+  window.handleLogin = function (e) {
+    e.preventDefault();
+    var nameInput = document.getElementById("loginName");
+    var passInput = document.getElementById("loginPass");
+    var name = nameInput.value.trim();
+    var lower = name.toLowerCase();
+    var pass = passInput.value;
+    var err = document.getElementById("loginError");
+    err.textContent = "";
+
+    if (!lower) { err.textContent = "Enter a username to continue."; return false; }
+
+    if (lower === "admin" || lower === "owner") {
+      if (pass === data.adminPassword) {
+        session.role = "admin"; session.displayName = "Owner";
+        ui.tab = "home"; render();
+      } else { err.textContent = "Wrong password, pup. Try again."; }
+      return false;
+    }
+    if (lower === data.viewerUsername.toLowerCase()) {
+      if (pass === data.viewerPassword) {
+        session.role = "viewer"; session.displayName = "Ibacutie";
+        ui.tab = "home"; render();
+      } else { err.textContent = "Wrong password, pup. Try again."; }
+      return false;
+    }
+    err.textContent = "Unknown login — ask the owner for your username.";
+    return false;
+  };
+
+  window.logout = function () {
+    session.role = null; session.displayName = "";
+    ui.tab = "home"; render();
+  };
+
+  window.setTab = function (t) { ui.tab = t; render(); };
+
+  window.cycleDay = function (key) {
+    if (session.role !== "admin") return;
+    var current = data.days[key] || "none";
+    var idx = DAY_COLORS.indexOf(current);
+    var nextColor = DAY_COLORS[(idx + 1) % DAY_COLORS.length];
+    if (nextColor === "none") delete data.days[key]; else data.days[key] = nextColor;
+    saveData();
+  };
+
+  window.navMonth = function (dir) {
+    var m = ui.cursor.m + dir, y = ui.cursor.y;
+    if (m < 0) { m = 11; y -= 1; } else if (m > 11) { m = 0; y += 1; }
+    ui.cursor = { y: y, m: m };
+    render();
+  };
+
+  window.openAddReward = function () { ui.rewardModal = { mode: "add", id: null, name: "", cost: "" }; render(); };
+  window.openEditReward = function (id) {
+    var r = data.rewards.find(function (x) { return x.id === id; });
+    if (!r) return;
+    ui.rewardModal = { mode: "edit", id: r.id, name: r.name, cost: String(r.cost) };
+    render();
+  };
+  window.closeRewardModal = function () { ui.rewardModal = null; render(); };
+  window.saveRewardModal = function () {
+    var nameEl = document.getElementById("rewardNameInput");
+    var costEl = document.getElementById("rewardCostInput");
+    var name = nameEl.value.trim();
+    var cost = parseInt(costEl.value, 10);
+    if (!name) { showToast("Give the reward a name first."); return; }
+    if (!cost || cost < 1) { showToast("Cost must be at least 1 point."); return; }
+    if (ui.rewardModal.mode === "add") {
+      data.rewards.push({ id: "r" + Date.now(), name: name, cost: cost });
+    } else {
+      data.rewards = data.rewards.map(function (r) {
+        return r.id === ui.rewardModal.id ? Object.assign({}, r, { name: name, cost: cost }) : r;
+      });
+    }
+    ui.rewardModal = null;
+    saveData();
+  };
+  window.removeReward = function (id) {
+    data.rewards = data.rewards.filter(function (r) { return r.id !== id; });
+    saveData();
+  };
+  window.redeemReward = function (id) {
+    var r = data.rewards.find(function (x) { return x.id === id; });
+    if (!r) return;
+    if (pointsAvailable() < r.cost) { showToast("Not enough points yet!"); return; }
+    data.redeemed.push({ id: "rd" + Date.now(), name: r.name, cost: r.cost, date: new Date().toISOString() });
+    showToast("Redeemed: " + r.name + " 🎁");
+    saveData();
+  };
+
+  window.addNote = function () {
+    var input = document.getElementById("noteDraft");
+    var text = input.value.trim();
+    if (!text) return;
+    data.notes.push({
+      id: "n" + Date.now(),
+      author: session.displayName || (session.role === "admin" ? "Owner" : "Viewer"),
+      text: text,
+      date: new Date().toISOString()
+    });
+    input.value = "";
+    saveData();
+  };
+  window.noteKeydown = function (e) { if (e.key === "Enter") window.addNote(); };
+  window.removeNote = function (id) {
+    data.notes = data.notes.filter(function (n) { return n.id !== id; });
+    saveData();
+  };
+
+  // ---------- render ----------
+  function render() {
+    var root = document.getElementById("app");
+    root.innerHTML = session.role ? renderApp() : renderLogin();
+    attachRewardModalIfAny();
+  }
+
+  function renderLogin() {
+    return (
+      '<div class="login-wrap">' +
+        '<div class="login-paws">🐾 🐾 🐾</div>' +
+        '<div class="login-card">' +
+          '<div class="tag-badge">🐶</div>' +
+          '<h1 class="login-title">Puppy Schedule</h1>' +
+          '<p class="login-sub">for ' + esc(data.puppyName) + ' · sign in to peek in</p>' +
+          '<form onsubmit="return handleLogin(event)" style="width:100%">' +
+            '<label class="field-label">👤 Username</label>' +
+            '<input class="field-input" id="loginName" placeholder="admin or ' + esc(data.viewerUsername) + '" autocapitalize="none" autocorrect="off" autofocus />' +
+            '<label class="field-label">🔒 Password</label>' +
+            '<input class="field-input" id="loginPass" type="password" placeholder="enter your password" />' +
+            '<div class="error-text" id="loginError"></div>' +
+            '<button type="submit" class="primary-btn">💗 Log in</button>' +
+          '</form>' +
+          '<p class="hint">' +
+            'Owner login: <b>admin</b> / <b>' + esc(data.adminPassword) + '</b><br/>' +
+            'Viewer login: <b>' + esc(data.viewerUsername) + '</b> / <b>' + esc(data.viewerPassword) + '</b>' +
+          '</p>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderApp() {
+    var html = "";
+    html += '<header class="app-header">' +
+      '<div class="header-left"><div class="tag-badge-sm">🐶</div><div>' +
+        '<div class="header-title">' + esc(data.puppyName) + "'s Schedule</div>" +
+        '<div class="role-tag">' + (session.role === "admin" ? "🐾 Owner mode" : "👁️ Viewer mode") + '</div>' +
+      '</div></div>' +
+      '<button class="logout-btn" onclick="logout()">⎋ Log out</button>' +
+    '</header>';
+
+    html += '<div class="stats-row">' +
+      '<div class="stat-card" style="border-color:#FFD27A"><span style="font-size:18px">🦴</span>' +
+        '<div class="stat-num">' + pointsAvailable() + '</div><div class="stat-label">Points available</div></div>' +
+      '<div class="stat-card" style="border-color:#8FE39B"><span style="font-size:18px">💚</span>' +
+        '<div class="stat-num">' + greenDays() + '</div><div class="stat-label">Green days</div></div>' +
+    '</div>';
+
+    var tabs = [["calendar","📅","Calendar"],["stickers","⭐","Stickers"],["rewards","🎁","Rewards"],["notes","💌","Messages"]];
+    html += '<nav class="tabs">' + tabs.map(function (t) {
+      var active = ui.tab === t[0] ? " active" : "";
+      return '<button class="tab-btn' + active + '" onclick="setTab(\'' + t[0] + '\')"><span>' + t[1] + '</span><span>' + t[2] + '</span></button>';
+    }).join("") + '</nav>';
+
+    if (ui.tab === "home") html += renderHome();
+    else if (ui.tab === "calendar") html += renderCalendar();
+    else if (ui.tab === "stickers") html += renderStickers();
+    else if (ui.tab === "rewards") html += renderRewards();
+    else if (ui.tab === "notes") html += renderNotes();
+
+    html += '<footer class="footer">🐾 Made with love for ' + esc(data.puppyName) +
+      (ui.saving ? '<span class="saving-badge">saving…</span>' : '') + '</footer>';
+
+    if (ui.toast) html += '<div class="toast">' + esc(ui.toast) + '</div>';
+    if (ui.rewardModal) html += renderRewardModal();
+
+    return html;
+  }
+
+  function renderHome() {
+    var html = '<div class="card">' +
+      '<div class="legend-row">' +
+        legendDot(COLOR_MAP.red.bg, "Rough day") +
+        legendDot(COLOR_MAP.yellow.bg, "Okay day") +
+        legendDot(COLOR_MAP.green.bg, "Good girl +1") +
+      '</div>' +
+      '<p class="home-text">Tap <b>Calendar</b> to see how ' + esc(data.puppyName) + ' is doing this month, check the <b>Stickers</b> book to see every good day earned, spend points in <b>Rewards</b>, or leave a note in <b>Messages</b>.</p>';
+    if (session.role === "viewer") {
+      html += '<div class="viewer-note">👁️ Viewer mode — you can watch the schedule and redeem rewards, but only the owner can change day colors or edit rewards.</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function legendDot(color, label) {
+    return '<div class="legend-item"><span class="legend-dot" style="background:' + color + '"></span>' + label + '</div>';
+  }
+
+  function renderCalendar() {
+    var y = ui.cursor.y, m = ui.cursor.m;
+    var daysInMonth = new Date(y, m + 1, 0).getDate();
+    var firstWeekday = mondayIndex(new Date(y, m, 1).getDay());
+    var today = new Date();
+    var isCurrentMonth = today.getFullYear() === y && today.getMonth() === m;
+
+    var html = '<div class="card">' +
+      '<div class="legend-row">' +
+        legendDot(COLOR_MAP.red.bg, "Rough") + legendDot(COLOR_MAP.yellow.bg, "Okay") + legendDot(COLOR_MAP.green.bg, "Good girl") +
+      '</div>' +
+      '<div class="month-nav">' +
+        '<button class="month-arrow" onclick="navMonth(-1)">‹</button>' +
+        '<div class="month-label">' + MONTH_NAMES[m] + " " + y + '</div>' +
+        '<button class="month-arrow" onclick="navMonth(1)">›</button>' +
+      '</div>' +
+      '<div class="week-row">' + WEEKDAYS.map(function (w) { return '<div class="weekday-label">' + w + '</div>'; }).join("") + '</div>' +
+      '<div class="grid">';
+
+    for (var i = 0; i < firstWeekday; i++) html += '<div></div>';
+    for (var d = 1; d <= daysInMonth; d++) {
+      var key = dateKey(y, m, d);
+      var color = data.days[key] || "none";
+      var c = COLOR_MAP[color];
+      var isToday = isCurrentMonth && today.getDate() === d;
+      html += '<button class="day-cell" style="background:' + c.bg + ';border-color:' + (isToday ? "#5B2C4E" : c.border) + ';border-width:' + (isToday ? "2px" : "1px") + '" onclick="cycleDay(\'' + key + '\')" title="' + (c.label || "No entry yet") + '">' +
+        '<span style="color:' + (color === "none" ? "#B48A9E" : "#3C2333") + ';font-weight:' + (isToday ? 800 : 600) + '">' + d + '</span>' +
+        (color === "green" ? '<span class="day-paw">🐾</span>' : '') +
+        '</button>';
+    }
+    html += '</div>';
+    if (session.role === "viewer") html += '<div class="viewer-note">👁️ Only the owner can change day colors.</div>';
+    html += '</div>';
+    return html;
+  }
+
+  function renderStickers() {
+    var earned = greenDays();
+    var html = '<div class="card">' +
+      '<div class="section-head-row"><div class="section-head">Sticker book</div><div class="sticker-count">' + earned + ' / ' + data.stickerSlots + ' earned</div></div>' +
+      '<p class="home-text" style="margin-top:0;margin-bottom:14px">Every green day adds a new sticker to the book. Fill every slot to become a certified good girl.</p>' +
+      '<div class="sticker-grid">';
+    for (var i = 0; i < data.stickerSlots; i++) {
+      var isEarned = i < earned;
+      var icon = STICKER_ICONS[i % STICKER_ICONS.length];
+      var color = STICKER_COLORS[i % STICKER_COLORS.length];
+      html += '<div class="sticker-slot" style="background:' + (isEarned ? color : "#FFF9FB") + ';border-style:' + (isEarned ? "solid" : "dashed") + ';border-color:' + (isEarned ? color : "#F1DCE6") + '">' +
+        (isEarned ? icon : '<span style="font-size:11px;color:#E3C3D2">🔒</span>') + '</div>';
+    }
+    html += '</div>';
+    if (earned >= data.stickerSlots) {
+      html += '<div class="viewer-note">✨ Book complete! ' + esc(data.puppyName) + ' is officially the goodest girl.</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderRewards() {
+    var html = '<div class="card">' +
+      '<div class="section-head-row"><div class="section-head">Rewards shop</div>' +
+      (session.role === "admin" ? '<button class="add-btn" onclick="openAddReward()">+ Add</button>' : '') +
+      '</div><div class="list">';
+
+    data.rewards.forEach(function (r) {
+      var canAfford = pointsAvailable() >= r.cost;
+      html += '<div class="list-row">' +
+        '<div class="reward-icon">🎁</div>' +
+        '<div class="list-label">' + esc(r.name) + '</div>' +
+        '<div class="cost-chip">🦴 ' + r.cost + '</div>' +
+        '<button class="redeem-btn" style="opacity:' + (canAfford ? 1 : 0.45) + '" ' + (canAfford ? "" : "disabled") + ' onclick="redeemReward(\'' + r.id + '\')">Redeem</button>';
+      if (session.role === "admin") {
+        html += '<button class="icon-btn" onclick="openEditReward(\'' + r.id + '\')">✏️</button>' +
+          '<button class="icon-btn" onclick="removeReward(\'' + r.id + '\')">🗑️</button>';
+      }
+      html += '</div>';
+    });
+    if (data.rewards.length === 0) {
+      html += '<div class="empty-text">No rewards yet. ' + (session.role === "admin" ? "Add the first one above." : "Check back soon.") + '</div>';
+    }
+    html += '</div>';
+
+    if (data.redeemed.length > 0) {
+      html += '<div class="section-head" style="margin-top:18px;font-size:14px">Redeemed</div><div class="list">';
+      data.redeemed.slice().reverse().slice(0, 6).forEach(function (r) {
+        html += '<div class="redeemed-row">✨ <span style="flex:1">' + esc(r.name) + '</span><span class="redeemed-date">' + new Date(r.date).toLocaleDateString() + '</span></div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderRewardModal() {
+    var rm = ui.rewardModal;
+    return '<div class="modal-overlay" onclick="if(event.target===this) closeRewardModal()">' +
+      '<div class="modal-card" onclick="event.stopPropagation()">' +
+        '<div class="modal-head-row"><div class="section-head">' + (rm.mode === "add" ? "New reward" : "Edit reward") + '</div>' +
+          '<button class="icon-btn" onclick="closeRewardModal()">✕</button></div>' +
+        '<label class="field-label">🎁 Reward name</label>' +
+        '<input class="field-input" id="rewardNameInput" value="' + esc(rm.name) + '" placeholder="e.g. New chew toy" />' +
+        '<label class="field-label">🦴 Cost in points</label>' +
+        '<input class="field-input" id="rewardCostInput" type="number" min="1" value="' + esc(rm.cost) + '" placeholder="e.g. 3" />' +
+        '<button class="primary-btn" onclick="saveRewardModal()">💗 Save reward</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function attachRewardModalIfAny() {
+    if (ui.rewardModal) {
+      var nameEl = document.getElementById("rewardNameInput");
+      if (nameEl) nameEl.focus();
+    }
+  }
+
+  function renderNotes() {
+    var html = '<div class="card">' +
+      '<div class="section-head">Daily messages</div>' +
+      '<p class="home-text" style="margin-top:4px;margin-bottom:14px">A little board for notes about ' + esc(data.puppyName) + ' & Dosah — anyone can leave one.</p>' +
+      '<div class="note-input-row">' +
+        '<input class="note-input" id="noteDraft" placeholder="Leave a note..." onkeydown="noteKeydown(event)" />' +
+        '<button class="note-send-btn" onclick="addNote()">➤</button>' +
+      '</div><div class="list">';
+
+    var notes = (data.notes || []).slice().reverse();
+    notes.forEach(function (n) {
+      html += '<div class="note-row"><div class="note-top">' +
+        '<span class="note-author">' + esc(n.author) + '</span>' +
+        '<span class="note-date">' + new Date(n.date).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + '</span>' +
+        (session.role === "admin" ? '<button class="icon-btn" onclick="removeNote(\'' + n.id + '\')">🗑️</button>' : '') +
+        '</div><div class="note-text">' + esc(n.text) + '</div></div>';
+    });
+    if (notes.length === 0) html += '<div class="empty-text">No messages yet — say hi!</div>';
+    html += '</div></div>';
+    return html;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
